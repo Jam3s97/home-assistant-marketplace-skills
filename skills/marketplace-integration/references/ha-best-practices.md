@@ -1,18 +1,21 @@
 # Home Assistant best practice for custom integrations
 
-Based on the Home Assistant developer docs
-(<https://contributors.home-assistant.io>), the Integration Quality Scale
-(<https://contributors.home-assistant.io/core/quality-scale/>) and the rules
-core gives its own AI agents (`AGENTS.md` and the `ha-integration-knowledge`
-skill in <https://github.com/home-assistant/core>, as of November 2026),
-adapted where a custom integration differs.
-The quality scale is written for core integrations, and custom integrations
-cannot declare a tier in their manifest, but its rules are the best available
-definition of "done properly". Aim for Bronze as the floor and Silver as the
-target; Gold items are listed for completeness.
+How to write integration code the way Home Assistant core does, adapted to
+an integration that lives in its own repository. Drawn from the Home
+Assistant contributor docs (<https://contributors.home-assistant.io>), the
+integration quality scale, the rules core gives its own AI agents
+(`AGENTS.md` and the `ha-integration-knowledge` skill in
+<https://github.com/home-assistant/core>) and what hacs/default reviewers
+ask for, as of November 2026.
+
+This file is the floor, not the ceiling: it holds the rules in short, and
+each section links the live pages that hold the detail. To grade an
+integration against the quality scale tiers, use
+[quality-scale.md](quality-scale.md).
 
 ## Contents
 
+- [Reading the live docs for a custom integration](#reading-the-live-docs-for-a-custom-integration)
 - [File layout](#file-layout)
 - [Setup and teardown](#setup-and-teardown)
 - [Config flow](#config-flow)
@@ -30,10 +33,60 @@ target; Gold items are listed for completeness.
 - [Bundled frontend code](#bundled-frontend-code)
 - [Diagnostics, repairs, logging](#diagnostics-repairs-logging)
 - [Tests and tooling](#tests-and-tooling)
-- [Quality scale checklist](#quality-scale-checklist)
 - [Outdated patterns and their replacements](#outdated-patterns-and-their-replacements)
 
+## Reading the live docs for a custom integration
+
+The short rules below go out of date faster than the contributor site
+does. Before writing or changing code in an area, open the live pages
+listed under its heading here, and use what they say about Home Assistant's
+APIs over what this file says. Skip it for a one-line fix or an area
+already checked in this session.
+
+**Getting the page.** Every page has a Markdown version for agents: add
+`index.md` to its URL, for example
+`https://contributors.home-assistant.io/core/integrations/config-flow/index.md`.
+For a topic not linked here, `https://contributors.home-assistant.io/core/llms.txt`
+lists every page in the core area, and `/marketplace/llms.txt`,
+`/security/llms.txt` and `/frontend/llms.txt` do the same for theirs. Fetch
+single pages; the `llms-full.txt` files are the whole area at once and too
+large to be useful.
+
+**When the site cannot be reached** (a blocked host is common in sandboxes
+and cloud sessions), read the same page from its source repository instead:
+`https://raw.githubusercontent.com/home-assistant/contributors.home-assistant.io/main/src/content/docs/<path>.md`,
+where `<path>` is the URL path without slashes at the ends, for example
+`core/integrations/config-flow`. Some pages end in `.mdx` instead (most
+entity platforms, such as `core/entities/sensor.mdx`); try that when `.md`
+returns 404. Only if both fail, work from this file and tell the user the
+live docs could not be checked.
+
+**The pages are written for core.** Read them through this table before
+applying anything:
+
+| The page says | In a custom integration |
+| --- | --- |
+| `homeassistant/components/<domain>/` | `custom_components/<domain>/` |
+| `strings.json`, translated by the project | `translations/en.json`, written by hand; other languages are the maintainer's job |
+| Brand images in the brands repository | `custom_components/<domain>/brand/icon.png` and `logo.png` (HA 2026.3+) |
+| `quality_scale` in the manifest, `quality_scale.yaml`, `.strict-typing`, `CODEOWNERS`, `requirements_all.txt` | Not used; do not add them. Track tiers with [quality-scale.md](quality-scale.md) |
+| `python3 -m script.scaffold` | The integration blueprint (Create mode in `SKILL.md`) |
+| `python3 -m script.hassfest` | The hassfest GitHub Action (`home-assistant/actions/hassfest`) |
+| `from tests.common import …`, `tests/components/<domain>/` | `from pytest_homeassistant_custom_component.common import …`, `tests/` |
+| `--cov=homeassistant.components.<domain>` | `--cov=custom_components.<domain>` |
+| Core's pylint plugin and its warnings | Not run by the blueprint; treat the rule behind a warning as guidance, ruff as the linter |
+| Core PR rules (one platform per PR, review process, Codecov) | Not applicable; catalog review is in `review-rounds.md` |
+| An API "added in 2026.x" | Usable only if `hacs.json` `homeassistant` is at least that version; raise it or keep the older API |
+
+Where the live page and this file differ on how Home Assistant works, the
+page wins: follow it, and tell the user this file needs updating. Where they
+differ on what is different for a custom integration (the table above) or
+on what catalog reviewers ask for, this file wins, because the core pages
+do not cover those.
+
 ## File layout
+
+Live docs: [file structure](https://contributors.home-assistant.io/core/integrations/file-structure/), [build a Python library](https://contributors.home-assistant.io/core/integrations/api-library/), [publish a custom integration](https://contributors.home-assistant.io/marketplace/guides/integrations/).
 
 ```
 custom_components/<domain>/
@@ -69,6 +122,8 @@ from one platform module into another.
 
 ## Setup and teardown
 
+Live docs: [config entries](https://contributors.home-assistant.io/core/integrations/config-entries/), [setup failures](https://contributors.home-assistant.io/core/integrations/setup-failures/).
+
 ```python
 type AwesomeConfigEntry = ConfigEntry[AwesomeData]
 
@@ -103,6 +158,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: AwesomeConfigEntry) -> 
   delete stale devices, and remove devices that disappear from the API.
 
 ## Config flow
+
+Live docs: [config flow](https://contributors.home-assistant.io/core/integrations/config-flow/), [forms, menus and progress](https://contributors.home-assistant.io/core/integrations/flow-steps/), [options flow](https://contributors.home-assistant.io/core/integrations/options-flow/), [reauth and reconfigure](https://contributors.home-assistant.io/core/integrations/reauth-reconfigure/), [discovery](https://contributors.home-assistant.io/core/integrations/discovery/).
 
 - `"config_flow": true` and UI-only setup. No `configuration.yaml` schema for
   new integrations.
@@ -147,6 +204,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: AwesomeConfigEntry) -> 
 
 ## OAuth 2.0 accounts
 
+Live docs: [OAuth 2.0 and application credentials](https://contributors.home-assistant.io/core/integrations/oauth2/).
+
 For a cloud service that signs users in with OAuth 2.0, use Home Assistant's
 helpers instead of writing token handling (developer docs: "OAuth 2.0
 support" and "Application credentials").
@@ -185,6 +244,8 @@ support" and "Application credentials").
 
 ## Config subentries
 
+Live docs: [config subentries](https://contributors.home-assistant.io/core/integrations/subentries/).
+
 Use subentries when one account or connection holds several user-chosen
 things that are each added, changed and removed on their own: locations for
 a weather service, rooms, conversation agents on one API key. The parent
@@ -212,6 +273,8 @@ use options or a list in `entry.data` for this.
   `hass.config_entries.subentries.async_init`.
 
 ## Async and I/O
+
+Live docs: [async in Home Assistant](https://contributors.home-assistant.io/core/internals/asyncio/), [blocking operations](https://contributors.home-assistant.io/core/internals/blocking-operations/), [thread safety](https://contributors.home-assistant.io/core/internals/thread-safety/).
 
 Home Assistant runs one event loop. Anything that blocks it freezes the whole
 system, and Home Assistant logs "Detected blocking call" against the
@@ -243,6 +306,8 @@ integration.
 
 ## Fetching data
 
+Live docs: [fetching data](https://contributors.home-assistant.io/core/integrations/fetching-data/), [updating state](https://contributors.home-assistant.io/core/entities/state-updates/).
+
 - Polling one endpoint for many entities: one `DataUpdateCoordinator`
   subclass, entities inherit `CoordinatorEntity`. Pass `config_entry=` to the
   coordinator constructor.
@@ -264,6 +329,8 @@ integration.
   commands).
 
 ## Bluetooth devices
+
+Live docs: [Bluetooth integrations](https://contributors.home-assistant.io/core/integrations/bluetooth/), [fetching Bluetooth data](https://contributors.home-assistant.io/core/integrations/bluetooth-data/).
 
 Home Assistant owns the Bluetooth adapters, including remote ESPHome
 proxies. An integration uses them through the `bluetooth` component and
@@ -306,6 +373,8 @@ and "Fetching Bluetooth data").
   `local_polling` when the integration connects to poll.
 
 ## Entities
+
+Live docs: [the entity class](https://contributors.home-assistant.io/core/entities/entity-class/), [naming entities](https://contributors.home-assistant.io/core/entities/naming/), [state and attributes](https://contributors.home-assistant.io/core/entities/state-attributes/), [entity lifecycle](https://contributors.home-assistant.io/core/entities/lifecycle/), [icons](https://contributors.home-assistant.io/core/entities/icons/), [entity platforms](https://contributors.home-assistant.io/core/entities/) (one page per platform: sensor, light, climate…).
 
 ```python
 class AwesomeSensor(AwesomeEntity, SensorEntity):
@@ -370,6 +439,8 @@ class AwesomeSensor(AwesomeEntity, SensorEntity):
 
 ## Devices
 
+Live docs: [device registry](https://contributors.home-assistant.io/core/integrations/device-registry/), [entity registry](https://contributors.home-assistant.io/core/entities/registry/).
+
 - Provide `DeviceInfo` with `identifiers={(DOMAIN, stable_id)}`, plus
   `manufacturer`, `model`, `sw_version`, `serial_number`,
   `configuration_url`, and `connections` (MAC) where known. Sub-devices use
@@ -380,6 +451,8 @@ class AwesomeSensor(AwesomeEntity, SensorEntity):
   integration's config entries.
 
 ## Services (actions)
+
+Live docs: [actions in integrations](https://contributors.home-assistant.io/core/integrations/actions/), [permissions](https://contributors.home-assistant.io/core/internals/permissions/).
 
 - Describe every service in `services.yaml` and translate names and
   descriptions. The voluptuous schema must accept exactly the fields
@@ -406,6 +479,8 @@ class AwesomeSensor(AwesomeEntity, SensorEntity):
 
 ## Exceptions and validation
 
+Live docs: [setup failures](https://contributors.home-assistant.io/core/integrations/setup-failures/), [validating input](https://contributors.home-assistant.io/core/development/input-validation/), [code style](https://contributors.home-assistant.io/core/development/style/).
+
 - Keep `try` blocks as small as possible: wrap the call that can raise, not
   the whole function, and do not catch exceptions from code that is not
   expected to raise them.
@@ -425,6 +500,8 @@ class AwesomeSensor(AwesomeEntity, SensorEntity):
 
 ## Translations
 
+Live docs: [integration translations](https://contributors.home-assistant.io/core/integrations/translations/).
+
 - Custom integrations ship `translations/en.json` directly. `strings.json` is
   a core build input and is **not** read for custom integrations. English is
   mandatory even when the primary audience uses another language.
@@ -436,6 +513,8 @@ class AwesomeSensor(AwesomeEntity, SensorEntity):
 - Exceptions shown to users use `translation_domain` / `translation_key`.
 
 ## Security and good citizenship
+
+Live docs: [secure integrations](https://contributors.home-assistant.io/security/guides/integrations/), [dependencies and supply chain](https://contributors.home-assistant.io/security/guides/dependencies/).
 
 These come up repeatedly in hacs/default reviews.
 
@@ -464,6 +543,8 @@ These come up repeatedly in hacs/default reviews.
 
 ## Bundled frontend code
 
+Live docs: [register resources](https://contributors.home-assistant.io/frontend/custom-ui/resources/), [custom panels](https://contributors.home-assistant.io/frontend/custom-ui/panel/), [untrusted content in the frontend](https://contributors.home-assistant.io/security/guides/frontend/).
+
 HACS installs only `custom_components/<domain>/` for an integration. A card or
 panel in the repository root (`www/`, `dist/`) is never delivered.
 
@@ -478,6 +559,8 @@ panel in the repository root (`www/`, `dist/`) is never delivered.
   `id` attributes). Prefer `textContent` or Lit templates over `innerHTML`.
 
 ## Diagnostics, repairs, logging
+
+Live docs: [diagnostics](https://contributors.home-assistant.io/core/integrations/diagnostics/), [repairs](https://contributors.home-assistant.io/core/integrations/repairs/).
 
 - `diagnostics.py` with `async_get_config_entry_diagnostics`, using
   `async_redact_data` for anything sensitive.
@@ -494,6 +577,8 @@ panel in the repository root (`www/`, `dist/`) is never delivered.
   extreme cases.
 
 ## Tests and tooling
+
+Live docs: [writing tests](https://contributors.home-assistant.io/core/development/tests/), [running the tests](https://contributors.home-assistant.io/core/development/testing/), [type hints](https://contributors.home-assistant.io/core/development/typing/).
 
 - `pytest-homeassistant-custom-component` gives the core test fixtures
   (`hass`, `MockConfigEntry`, `enable_custom_integrations`). Minimum useful
@@ -528,51 +613,9 @@ panel in the repository root (`www/`, `dist/`) is never delivered.
   blueprint) and watch the log for blocking-call and deprecation warnings.
   Deprecations name the release in which the old API is removed.
 
-## Quality scale checklist
-
-Bronze (baseline):
-
-- [ ] Set up via config flow, with field descriptions (`data_description`)
-- [ ] Connection tested in the config flow and again at setup
-- [ ] Unique config entry (no duplicates)
-- [ ] `entry.runtime_data` used
-- [ ] Entities have unique IDs and `has_entity_name = True`
-- [ ] Event subscriptions made in `async_added_to_hass` and removed on removal
-- [ ] Appropriate polling interval
-- [ ] Services registered in `async_setup`
-- [ ] Shared patterns in common modules (`coordinator.py`, `entity.py`)
-- [ ] Dependencies are on PyPI, built from public source, pinned
-- [ ] Brand assets present
-- [ ] Docs: description, install steps, removal steps, actions
-- [ ] Config flow tests
-
-Silver (reliability):
-
-- [ ] Config entry unloads cleanly
-- [ ] Entities become unavailable when the source is, logged once each way
-- [ ] Reauthentication flow
-- [ ] Service calls raise on failure
-- [ ] `PARALLEL_UPDATES` set
-- [ ] Active code owner
-- [ ] Docs: configuration parameters, installation parameters
-- [ ] Good test coverage
-
-Gold (experience):
-
-- [ ] Devices created with full `DeviceInfo`
-- [ ] Discovery, and address updates from discovery
-- [ ] Reconfigure flow
-- [ ] Diagnostics
-- [ ] Entity, exception and icon translations
-- [ ] Entity categories, device classes, disabled-by-default where apt
-- [ ] Dynamic devices added, stale devices removed
-- [ ] Repair issues where useful
-- [ ] Docs: supported devices, functions, data update method, use cases,
-      examples, known limitations, troubleshooting
-
-Platinum: fully async dependency, injected web session, strict typing.
-
 ## Outdated patterns and their replacements
+
+Live docs: [deprecating](https://contributors.home-assistant.io/core/development/deprecating/), [the developer blog](https://contributors.home-assistant.io/blog/).
 
 | Seen in code | Use instead |
 | --- | --- |

@@ -1,12 +1,15 @@
 {
   "name": "home-assistant-marketplace-skills",
-  "description": "Unofficial Agent Skills for publishing to the Home Assistant Marketplace (formerly HACS).",
-  "owner": { "name": "Jam3s97", "url": "https://github.com/Jam3s97" },
+  "description": "Unofficial Agent Skills for Home Assistant custom integrations and the Home Assistant Marketplace (formerly HACS).",
+  "owner": {
+    "name": "Jam3s97",
+    "url": "https://github.com/Jam3s97"
+  },
   "plugins": [
     {
       "name": "marketplace-skills",
       "source": "./",
-      "description": "Unofficial skills for publishing to the Home Assistant Marketplace (formerly HACS). Create, build and review custom integrations, with a focus on quality and security."
+      "description": "Unofficial skills for Home Assistant custom integrations: write, build and review them to core's standard, grade them against the quality scale, and publish them through the Home Assistant Marketplace (formerly HACS)."
     }
   ]
 }

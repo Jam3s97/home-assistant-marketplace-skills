@@ -1,14 +1,18 @@
 ---
 name: marketplace-integration
-description: Create, build and review Home Assistant custom integrations published through the Home Assistant Marketplace (formerly HACS), and prepare them for the Marketplace catalog (the hacs/default repository, also known as the HACS default store). Use when the user wants to scaffold a new custom integration (custom_components), add or fix config flows, coordinators, entities, manifest.json, hacs.json, brand images, hassfest or HACS action workflows, review an integration against Home Assistant best practice, fix a failing HACS/hassfest check, or prepare for, or work through review feedback on, a pull request to hacs/default. Not for dashboards, cards, themes, templates or blueprints.
+description: Write, build and review Home Assistant custom integrations (custom_components) to the standard Home Assistant core holds its own integrations to, and publish them through the Home Assistant Marketplace (formerly HACS). Use when the user wants to scaffold a new custom integration; write, fix or refactor integration code (config, options, reauth and reconfigure flows, coordinators, entities, devices, actions, diagnostics, repairs, translations, tests, manifest.json, hacs.json, brand images); review an integration for bugs and Home Assistant best practice, or grade it against the integration quality scale (Bronze, Silver, Gold, Platinum); fix a failing hassfest or HACS check; or prepare for, or work through review feedback on, a pull request to hacs/default (the Marketplace catalog, also known as the HACS default store). Not for dashboards, cards, themes, templates or blueprints.
 ---
 
 # Marketplace integration skill
 
-Helps with the three stages of a Home Assistant custom integration: **create**
-(scaffold from the blueprint), **build** (write code the Home Assistant way),
-and **review** (find what will fail validation or be flagged before a
-maintainer does). Scope is the `integration` category only.
+Helps write a Home Assistant custom integration that is as good as one in
+core: **create** (scaffold from the blueprint), **build** (write code the
+Home Assistant way, checked against the live developer docs) and **review**
+(find bugs, best-practice gaps and quality-scale rules not yet met). Getting
+listed in the Marketplace catalog follows from that: an integration built
+this way passes the checks and gives reviewers little to ask for, and
+**publish** and **respond** cover the steps that are specific to the
+catalog. Scope is the `integration` category only.
 
 **Naming.** From Home Assistant 2026.11, HACS is built in as the
 **Marketplace**. It is the same system: the catalog is still the
@@ -17,12 +21,17 @@ still the HACS action. Users may say "HACS", "the HACS default store" or "the
 Marketplace catalog" and mean the same thing. Use "Marketplace" when talking
 to the user, and keep the HACS names for the things still called that.
 
-Requirements move. HACS and Home Assistant change their rules several times a
-year, so when a reference file here disagrees with the live docs
-(<https://contributors.home-assistant.io/marketplace/> for publishing,
-<https://contributors.home-assistant.io/core/integrations/> for building
-integrations, and the older <https://hacs.xyz/docs/publish/include> for the
-catalog checks), the live docs win; say so and follow them.
+Requirements move. Home Assistant's APIs and the Marketplace rules change
+several times a year, so the references here are a summary, and the live
+docs on <https://contributors.home-assistant.io> are the authority. Each
+section of `references/ha-best-practices.md` links its live pages, and
+[Reading the live docs](references/ha-best-practices.md#reading-the-live-docs-for-a-custom-integration)
+says how to fetch them (with a fallback when the site is blocked) and how to
+read core-only details for a custom integration. When a reference here
+disagrees with the live docs about how Home Assistant works, the live docs
+win; say so and follow them. For the catalog checks, the older
+<https://hacs.xyz/docs/publish/include> still applies alongside
+<https://contributors.home-assistant.io/marketplace/>.
 
 Home Assistant core ships its own agent guidance for integration code: the
 `ha-integration-knowledge` and `ha-review` skills
@@ -68,7 +77,7 @@ policy is and offer the allowed form of help.
 | --- | --- |
 | Start a new integration | [Create](#create) |
 | Add features or fix code in an existing one | [Build](#build) |
-| Know whether it is good / ready, or why a check fails | [Review](#review) |
+| Know whether it is good / ready, which quality-scale tier it meets, or why a check fails | [Review](#review) |
 | Get ready to be listed in the Marketplace catalog | [Publish](#publish) |
 | Work through a maintainer's review on their hacs/default PR | [Respond to a review](#respond-to-a-review) |
 
@@ -184,7 +193,13 @@ and why; do not leave it for the user to discover.
 ## Build
 
 Read [references/ha-best-practices.md](references/ha-best-practices.md) before
-writing or changing integration code. The non-negotiables:
+writing or changing integration code, and for each area you are about to
+touch (config flow, entities, a platform, Bluetooth…) fetch the live pages
+its section links. Do this before writing the code, not after: the live
+page is where new helpers and changed APIs show up first. Unless the user
+sets another target, aim at the Silver rules of the
+[quality scale](references/quality-scale.md) for new work, and do not let a
+change break a rule the integration already met. The non-negotiables:
 
 - UI setup through a config flow that tests the connection before creating the
   entry and sets a stable unique ID. No YAML configuration for new work.
@@ -235,6 +250,9 @@ you touched and fix or report anything that fails:
       user changed.
 - [ ] New dependencies are pinned in `requirements`; new core components
       used are in `dependencies` or `after_dependencies`.
+- [ ] The live docs for each area you touched were read (or you said they
+      could not be reached), and no quality-scale rule the integration met
+      before is now broken.
 - [ ] `scripts/lint` (or `ruff check` and `ruff format`) and the tests pass;
       the pre-flight script reports no new errors.
 - [ ] You have told the user what still needs testing against the real
@@ -244,29 +262,37 @@ you touched and fix or report anything that fails:
 
 Work in this order and report findings grouped as **Blocking** (a HACS or
 hassfest check fails, or the PR would be closed), **Should fix** (Home
-Assistant best practice, user-visible bugs) and **Nice to have**. Give
-file:line and the concrete fix for each.
+Assistant best practice, user-visible bugs, Bronze rules not met) and
+**Nice to have**. Give file:line and the concrete fix for each. End the
+report with the quality-scale summary from step 3.
 
 1. Run the offline pre-flight:
    `python3 <skill-dir>/scripts/preflight.py <repo-path>`.
    It covers repository layout, `hacs.json`, `manifest.json`, brand icon,
    translations, workflows, and a scan for common code smells. It cannot see
-   GitHub-side settings, so check those by hand (step 3).
+   GitHub-side settings, so check those by hand (step 4).
 2. Read the code against
    [references/ha-best-practices.md](references/ha-best-practices.md). The
    script's pattern hits are leads, not verdicts; confirm each by reading the
-   code.
-3. Check what only GitHub knows, using
+   code. Where a finding rests on how a Home Assistant API behaves, check
+   the live page linked from that section before reporting it.
+3. Grade the integration against the quality scale with
+   [references/quality-scale.md](references/quality-scale.md): every rule of
+   the target tier (Silver unless the user named one) and the tiers below
+   it, each Met, Not met, N/A or Unknown with its evidence. Report the
+   per-tier summary in the format that file shows, and say plainly that
+   custom integrations have no official tier.
+4. Check what only GitHub knows, using
    [references/marketplace-requirements.md](references/marketplace-requirements.md):
    description, topics, issues enabled, licence detected, not archived, a
    full **release** (not just a tag) made *after* the last green workflow
    run, and both workflows green with no `ignore`.
-4. Go through [references/review-rounds.md](references/review-rounds.md),
+5. Go through [references/review-rounds.md](references/review-rounds.md),
    the code-level findings maintainers raised on submissions that were later
    merged (auth and reauth, exceptions, blocking calls, privacy, access
    control, frontend escaping, device safety, minimum-version floor). This is
    the closest thing to the reviewer's own checklist.
-5. Compare against
+6. Compare against
    [references/common-pr-feedback.md](references/common-pr-feedback.md), the
    catalogue of what gets hacs/default submissions closed or drafted.
 

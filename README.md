@@ -4,18 +4,24 @@
 
 > If you find this useful, please give it a ⭐ on GitHub
 
-[Agent Skills](https://agentskills.io) for people who publish to the
-**Home Assistant Marketplace**, which is the new name for HACS now that it is
-built into Home Assistant (from 2026.11 on).
+[Agent Skills](https://agentskills.io) for writing Home Assistant custom
+integrations as well as the ones built into Home Assistant, and publishing
+them through the **Home Assistant Marketplace**, which is the new name for
+HACS now that it is built into Home Assistant (from 2026.11 on).
 
 There is one skill so far, **`marketplace-integration`**. It helps you create,
-build and review a custom integration.
-It can also help refine your integration if you wish to get it added into the
-Marketplace catalog, the list you may know as the HACS default store.
+build and review a custom integration, and the focus is the code: config
+flows, coordinators, entities and tests written the way Home Assistant core
+writes them. It checks its guidance against the live
+[developer docs](https://contributors.home-assistant.io) before writing
+code, and can grade your integration against Home Assistant's
+[integration quality scale](https://contributors.home-assistant.io/core/quality-scale/)
+(Bronze to Platinum).
 
-It knows the Marketplace and HACS publishing rules, Home Assistant's developer
-best practice, and what maintainers actually ask for: it was built from the
-review comments on 80 real submissions to
+Getting into the Marketplace catalog, the list you may know as the HACS
+default store, follows from good code, and the skill helps with that too: it
+knows the Marketplace and HACS publishing rules and what maintainers actually
+ask for, built from the review comments on 80 real submissions to
 [hacs/default](https://github.com/hacs/default).
 
 Integrations only for now. Skills for dashboards, cards and themes may follow.
@@ -177,7 +183,8 @@ new version removed.
 Open your integration's folder in Claude Code (for a brand new integration,
 see [Starting a new integration](#starting-a-new-integration)), then either
 type the command or just ask in plain language; the skill loads itself when the
-request is about a custom integration for the Marketplace or HACS.
+request is about writing, fixing or reviewing a custom integration, or about
+publishing one through the Marketplace or HACS.
 
 The commands below are for a copied-folder install. If you installed with
 the plugin command, type `/marketplace-skills:marketplace-integration` in place of
@@ -188,6 +195,7 @@ the plugin command, type `/marketplace-skills:marketplace-integration` in place 
 | Start a new integration | `/marketplace-integration create` | "Scaffold a custom integration for my heat pump" |
 | Add or fix code | `/marketplace-integration build` | "Add a reauth flow to this integration" |
 | Check it before submitting | `/marketplace-integration review` | "Review this integration before I submit it to the Marketplace" |
+| See how it measures up | `/marketplace-integration review` | "Which quality scale tier does this integration meet?" |
 | Fix a failing check | `/marketplace-integration review` | "Why is the HACS action failing?" |
 | Get ready to submit to the Marketplace catalog | `/marketplace-integration publish` | "Is this ready to submit to hacs/default?" |
 | Work through a maintainer's review | `/marketplace-integration respond` | "Here's the review on my HACS PR, help me understand and fix it" (paste it) |
@@ -224,6 +232,11 @@ reports findings in three groups, each with a file, line and fix:
 - **Should fix**: Home Assistant best practice and bugs users would hit
 - **Nice to have**
 
+It ends with a quality-scale summary: for each tier, how many rules your
+integration meets, which do not apply to it, and which are still open. Core
+does not award tiers to custom integrations, so this is a yardstick, not a
+badge.
+
 It cannot see your GitHub settings from a local folder, so it will also ask
 you to confirm a few things by hand: repository description, topics, issues
 enabled, and that a release was published after the checks passed.
@@ -250,28 +263,37 @@ blocking problem was found, so it can be used in CI.
 | --- | --- |
 | `skills/marketplace-integration/SKILL.md` | Entry point: the create, build, review, publish and respond workflows |
 | `skills/marketplace-integration/references/marketplace-requirements.md` | Marketplace and HACS publishing rules, `hacs.json`, `manifest.json`, brand images, workflows, a check → fix table, and the hacs/default PR procedure |
-| `skills/marketplace-integration/references/ha-best-practices.md` | Home Assistant developer guidance and a quality-scale checklist |
+| `skills/marketplace-integration/references/ha-best-practices.md` | How to write integration code the Home Assistant way, with links to the live developer docs for each topic and how to read core-only docs for a custom integration |
+| `skills/marketplace-integration/references/quality-scale.md` | Every quality-scale rule as it applies to a custom integration, where to look for it, and how a review grades it |
 | `skills/marketplace-integration/references/common-pr-feedback.md` | What closed hacs/default submissions were stopped for |
 | `skills/marketplace-integration/references/review-rounds.md` | What reviewers asked for on submissions that were merged, and how to respond to a review |
 | `skills/marketplace-integration/scripts/preflight.py` | The offline checker |
 | `.claude-plugin/` | Plugin and marketplace manifests for the one-line install |
 | `tests/` | Tests for the checker and the skill's structure, run by CI |
 | `CHANGELOG.md` | What changed in each version |
+| `RESEARCH.md` | For maintainers: which docs and hacs/default pull requests the references were built from, and when each was last read |
 
 ## Keeping it current
 
 Marketplace and Home Assistant requirements change several times a year. The
 references were written in November 2026 from:
 
-- the Marketplace publishing documentation,
-  <https://contributors.home-assistant.io/marketplace/>
+- the Home Assistant contributor docs,
+  <https://contributors.home-assistant.io>: the core integration pages, the
+  integration quality scale and the Marketplace publishing pages
 - the older HACS pages, <https://hacs.xyz/docs/publish/start> and
   <https://hacs.xyz/docs/publish/include>
-- <https://contributors.home-assistant.io>
 - <https://github.com/ludeeus/integration_blueprint>
 - pull requests in <https://github.com/hacs/default>
 
+[RESEARCH.md](RESEARCH.md) records exactly what was read and when.
+
 If the skill and the live documentation disagree, the documentation wins.
+The skill reads the live pages itself before writing code, so most changes
+in Home Assistant reach it without an update here. That needs web access:
+where the docs site is blocked it reads the same pages from their GitHub
+source, and with no web access at all it works from its reference files
+and tells you the live docs were not checked.
 
 Each version is listed in [CHANGELOG.md](CHANGELOG.md) and published as a
 [release](https://github.com/Jam3s97/home-assistant-marketplace-skills/releases).

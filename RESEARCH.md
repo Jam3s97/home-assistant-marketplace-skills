@@ -95,6 +95,7 @@ Things to watch for next time:
 | HACS validators | 2026-11-10 | `custom_components/hacs/validate/` in `hacs/integration`, for check names and error messages |
 | hacs/default workflow and scripts | 2026-11-10 | `.github/workflows/checks.yml` and `scripts/check/` |
 | Home Assistant developer docs | 2026-11-10 | From `home-assistant/developers.home-assistant` at the time; that content has since moved to `contributors.home-assistant.io` |
+| Integration quality scale and core integration docs, <https://contributors.home-assistant.io/core/> | 2026-11-18 | From `home-assistant/contributors.home-assistant.io` at commit `4682081` (2026-11-17): `core/quality-scale/` (rules list, tiers, every rule's Exceptions section), and the titles and paths of the `core/integrations/`, `core/internals/`, `core/entities/`, `core/development/`, `security/guides/` and `frontend/custom-ui/` pages linked from `ha-best-practices.md`. The page bodies outside the quality scale were not reread |
 | Open Home Foundation AI policy | 2026-11-12 | <https://contributors.home-assistant.io/start/ai-policy/> |
 | Integration blueprint | 2026-11-10 | <https://github.com/ludeeus/integration_blueprint> |
 

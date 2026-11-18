@@ -307,6 +307,18 @@ class SkillStructureTest(unittest.TestCase):
     def test_body_length(self) -> None:
         self.assertLess(len(self.text.splitlines()), 500)
 
+    def test_quality_scale_lists_every_rule_once(self) -> None:
+        text = (SKILL / "references" / "quality-scale.md").read_text(encoding="utf-8")
+        expected = {"Bronze": 20, "Silver": 10, "Gold": 21, "Platinum": 3}
+        seen: list[str] = []
+        for tier, count in expected.items():
+            section = re.search(rf"^## {tier}\n(.*?)(?=^## |\Z)", text, re.S | re.M)
+            self.assertIsNotNone(section, f"quality-scale.md has no {tier} section")
+            rules = re.findall(r"^\| `([a-z0-9-]+)` \|", section[1], re.M)
+            self.assertEqual(len(rules), count, f"{tier} should list {count} rules")
+            seen += rules
+        self.assertEqual(len(seen), len(set(seen)), "a rule is listed twice")
+
     def test_links_resolve(self) -> None:
         for path in [SKILL / "SKILL.md", *(SKILL / "references").glob("*.md"), REPO / "README.md"]:
             text = path.read_text(encoding="utf-8")

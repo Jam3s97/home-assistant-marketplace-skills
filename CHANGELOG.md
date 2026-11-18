@@ -3,6 +3,40 @@
 Changes to the skill that users receive. The version is the one in
 `.claude-plugin/plugin.json`; plugin installs only update when it changes.
 
+## [0.3.0] - 2026-11-18
+
+### Added
+
+- Review mode grades the integration against Home Assistant's integration
+  quality scale and ends with a per-tier summary: how many Bronze, Silver,
+  Gold and Platinum rules it meets, which do not apply, and which are open,
+  each with the code that shows it. Custom integrations have no official
+  tier, and the report says so.
+- New `references/quality-scale.md`: all 54 rules read for a custom
+  integration, with where to look for each in your code.
+- Each section of `references/ha-best-practices.md` links the live
+  contributor-docs pages for that topic, and Build and Review read them
+  before writing code or reporting a finding. When the docs site is blocked
+  (common in sandboxes) the skill reads the same pages from their GitHub
+  source.
+- A table for reading core-only docs as a custom integration:
+  `translations/en.json` instead of `strings.json`, the `brand/` folder,
+  test imports, coverage paths, and what not to add.
+
+### Changed
+
+- The skill is now aimed first at writing good integration code; publishing
+  to the Marketplace catalog is the second half. The description it is
+  picked by mentions the quality scale, refactoring and reviews for bugs, so
+  it loads for everyday integration work, not only for publishing.
+- Build mode aims at the Silver rules for new work unless you set another
+  target, and its checklist checks that no rule the integration already met
+  was broken.
+
+### Removed
+
+- The short quality-scale checklist in `ha-best-practices.md`, replaced by
+  `references/quality-scale.md`.
 ## [0.2.3] - 2026-11-14
 
 ### Added
