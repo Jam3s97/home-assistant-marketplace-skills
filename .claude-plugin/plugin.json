@@ -2,10 +2,7 @@
   "name": "marketplace-skills",
   "version": "0.3.0",
   "description": "Unofficial skills for Home Assistant custom integrations: write, build and review them to core's standard, grade them against the quality scale, and publish them through the Home Assistant Marketplace (formerly HACS).",
-  "author": {
-    "name": "Jam3s97",
-    "url": "https://github.com/Jam3s97"
-  },
+  "author": { "name": "Jam3s97", "url": "https://github.com/Jam3s97" },
   "homepage": "https://github.com/Jam3s97/home-assistant-marketplace-skills",
   "repository": "https://github.com/Jam3s97/home-assistant-marketplace-skills",
   "license": "MIT",
