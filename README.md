@@ -183,7 +183,8 @@ new version removed.
 Open your integration's folder in Claude Code (for a brand new integration,
 see [Starting a new integration](#starting-a-new-integration)), then either
 type the command or just ask in plain language; the skill loads itself when the
-request is about a custom integration for the Marketplace or HACS.
+request is about writing, fixing or reviewing a custom integration, or about
+publishing one through the Marketplace or HACS.
 
 The commands below are for a copied-folder install. If you installed with
 the plugin command, type `/marketplace-skills:marketplace-integration` in place of
@@ -270,23 +271,29 @@ blocking problem was found, so it can be used in CI.
 | `.claude-plugin/` | Plugin and marketplace manifests for the one-line install |
 | `tests/` | Tests for the checker and the skill's structure, run by CI |
 | `CHANGELOG.md` | What changed in each version |
+| `RESEARCH.md` | For maintainers: which docs and hacs/default pull requests the references were built from, and when each was last read |
 
 ## Keeping it current
 
 Marketplace and Home Assistant requirements change several times a year. The
 references were written in November 2026 from:
 
-- the Marketplace publishing documentation,
-  <https://contributors.home-assistant.io/marketplace/>
+- the Home Assistant contributor docs,
+  <https://contributors.home-assistant.io>: the core integration pages, the
+  integration quality scale and the Marketplace publishing pages
 - the older HACS pages, <https://hacs.xyz/docs/publish/start> and
   <https://hacs.xyz/docs/publish/include>
-- <https://contributors.home-assistant.io>
 - <https://github.com/ludeeus/integration_blueprint>
 - pull requests in <https://github.com/hacs/default>
 
+[RESEARCH.md](RESEARCH.md) records exactly what was read and when.
+
 If the skill and the live documentation disagree, the documentation wins.
 The skill reads the live pages itself before writing code, so most changes
-in Home Assistant reach it without an update here.
+in Home Assistant reach it without an update here. That needs web access:
+where the docs site is blocked it reads the same pages from their GitHub
+source, and with no web access at all it works from its reference files
+and tells you the live docs were not checked.
 
 Each version is listed in [CHANGELOG.md](CHANGELOG.md) and published as a
 [release](https://github.com/Jam3s97/home-assistant-marketplace-skills/releases).
